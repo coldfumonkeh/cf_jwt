@@ -63,7 +63,7 @@ This component is based upon the original https://github.com/jsteinshouer/cf-jwt
 
 Download
 ----------------
-[OAuth2 CFC ](https://github.com/coldfumonkeh/cf_jwt/downloads)
+[CF JWT](https://github.com/coldfumonkeh/cf_jwt/downloads)
 
 
 ### 1.0.0 - October 16, 2017
