@@ -21,8 +21,8 @@ component accessors="true"{
 	*/
 	function init(
 		required string secretKey,
-		required string issuer,
-		required string audience
+		required string issuer   = '',
+		required string audience = ''
 	){
 		setSecretKey( arguments.secretKey );
 		setIssuer( arguments.issuer );
@@ -116,7 +116,19 @@ component accessors="true"{
 		return payload;
 	}
 
-
+	/**
+	* Verify the token signature
+	* @token The token to verify
+	*/
+	function verify( required string token ){
+		var isValidToken = true;
+		try{
+			decode( arguments.token );
+		} catch( any e ){
+			isValidToken = false;
+		}
+		return isValidToken;
+	}
 
 	/**
 	* Escapes unsafe url characters from a base64 string
