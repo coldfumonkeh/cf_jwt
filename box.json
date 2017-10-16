@@ -16,7 +16,10 @@
     "bugs":"https://github.com/coldfumonkeh/cf_jwt/issues",
     "shortDescription":"A ColdFusion CFC to manage the encoding and decoding of JWTs (JSON Web Tokens)",
     "keywords":[
-        "oauth2",
+        "JSON Web Tokens",
+        "JWT",
+        "encode",
+        "decode",
         "api"
     ],
     "scripts":{
