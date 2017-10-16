@@ -1,0 +1,71 @@
+{
+    "name":"CF JWT",
+    "slug":"cf-jwt",
+    "version":"1.0.1",
+    "author":"Matt Gifford (https://www.monkehworks.com)",
+    "location":"coldfumonkeh/cf_jwt#v1.0.1",
+    "directory":"",
+    "createPackageDirectory":"true",
+    "homepage":"https://github.com/coldfumonkeh/cf_jwt",
+    "documentation":"https://github.com/coldfumonkeh/cf_jwt",
+    "type":"projects",
+    "repository":{
+        "type":"git",
+        "URL":"https://github.com/coldfumonkeh/cf_jwt.git"
+    },
+    "bugs":"https://github.com/coldfumonkeh/cf_jwt/issues",
+    "shortDescription":"A ColdFusion CFC to manage the encoding and decoding of JWTs (JSON Web Tokens)",
+    "keywords":[
+        "JSON Web Tokens",
+        "JWT",
+        "encode",
+        "decode",
+        "api"
+    ],
+    "scripts":{
+        "postVersion":"package set location='coldfumonkeh/cf_jwt#v`package version`'",
+        "onRelease":"publish",
+        "postPublish":"!git push --follow-tags"
+    },
+    "private":"false",
+    "ignore":[
+        "**/.*",
+        "test",
+        "tests"
+    ],
+    "testbox":{
+        "runner":[
+            {
+                "default":""
+            }
+        ],
+        "labels":[
+            
+        ],
+        "reporter":"",
+        "reporterResults":"",
+        "bundles":[
+            ""
+        ],
+        "directory":{
+            "mapping":"",
+            "recurse":true
+        },
+        "watchers":[
+            
+        ],
+        "notify":{
+            "emails":[
+                
+            ],
+            "growl":"",
+            "URL":""
+        }
+    },
+    "dependencies":{
+        "testbox":"^2.5.0+107"
+    },
+    "installPaths":{
+        "testbox":"testbox"
+    }
+}
