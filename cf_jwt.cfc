@@ -12,7 +12,7 @@ component accessors="true"{
 	property name="issuer" type="string";
 	property name="audience" type="string";
 	property name="algMap" type="struct";
-	
+
 	/**
 	* Constructor
 	* @secretKey The secret key to use when signing
@@ -35,7 +35,6 @@ component accessors="true"{
 		return this;
 	}
 
-
 	/**
 	* Encodes the JWT
 	* @payload The structure containing the data to encrypt
@@ -48,7 +47,7 @@ component accessors="true"{
 		var stuAlgMap = getAlgMap();
 		var segments = '';
 		// Add Header - typ and alg fields
-		segments = listAppend( 
+		segments = listAppend(
 			segments,
 			base64UrlEscape(
 				toBase64(
@@ -80,7 +79,10 @@ component accessors="true"{
 	/**
 	* Decodes the given JWT
 	*/
-	public function decode( required string token ){
+	public function decode(
+		required string token,
+		boolean noThrow = false
+	){
 		if( listLen( arguments.token, "." ) neq 3 ){
 			cfthrow( type="Invalid Token" message="Token should contain 3 segments" );
 		}
@@ -89,29 +91,65 @@ component accessors="true"{
 		var payload   = deserializeJSON( base64UrlDecode( listGetAt( arguments.token, 2, "." ) ) );
 		var signature = listGetAt( arguments.token, 3, "." );
 
+		if( arguments.noThrow ){
+			payload[ 'isValid' ]    = true;
+			payload[ 'hasExpired' ] = false;
+		}
+
 		// Make sure the algorithm listed in the header is supported
 		if( !listFindNoCase( structKeyList( algorithmMap ), header[ 'alg' ] ) ){
-			cfthrow( type="Invalid Token" message="Algorithm not supported" );
+			if( !arguments.noThrow ){
+				cfthrow( type="Invalid Token" message="Algorithm not supported" );
+			} else {
+				payload[ 'isValid' ] = false;
+				payload[ 'invalidReason' ] = 'Algorithm not supported';
+			}
 		}
 		// Verify claims
 		if( structKeyExists( payload, "exp" ) ){
 			if( epochTimeToLocalDate( payload.exp ) lt now() ){
-				cfthrow( type="Invalid Token" message="Signature verification failed: Token expired" );
+				if( !arguments.noThrow ){
+					cfthrow( type="Invalid Token" message="Signature verification failed: Token expired" );
+				} else {
+					payload[ 'isValid' ]       = false;
+					payload[ 'hasExpired' ]    = true;
+					payload[ 'invalidReason' ] = 'Signature verification failed: Token expired';
+				}
 			}
 		}
 		if( structKeyExists( payload, "nbf" ) and epochTimeToLocalDate( payload.nbf ) gt now() ){
-			cfthrow( type="Invalid Token" message="Signature verification failed: Token not yet active" );
+			if( !arguments.noThrow ){
+				cfthrow( type="Invalid Token" message="Signature verification failed: Token not yet active" );
+			} else {
+				payload[ 'isValid' ] = false;
+				payload[ 'invalidReason' ] = 'Signature verification failed: Token not yet active';
+			}
 		}
 		if( structKeyExists( payload, "iss" ) and getIssuer() neq "" and payload.iss neq getIssuer() ){
-			cfthrow( type="Invalid Token" message="Signature verification failed: Issuer does not match" );
+			if( !arguments.noThrow ){
+				cfthrow( type="Invalid Token" message="Signature verification failed: Issuer does not match" );
+			} else {
+				payload[ 'isValid' ] = false;
+				payload[ 'invalidReason' ] = 'Signature verification failed: Issuer does not match';
+			}
 		}
 		if( structKeyExists( payload, "aud" ) and getAudience() neq "" and payload.aud neq getAudience() ){
-			cfthrow( type="Invalid Token" message="Signature verification failed: Audience does not match" );
+			if( !arguments.noThrow ){
+				cfthrow( type="Invalid Token" message="Signature verification failed: Audience does not match" );
+			} else {
+				payload[ 'isValid' ] = false;
+				payload[ 'invalidReason' ] = 'Signature verification failed: Audience does not match';
+			}
 		}
 		// Verify signature
 		var signInput = listGetAt( arguments.token, 1, "." ) & "." & listGetAt( arguments.token, 2,"." );
 		if( signature neq sign( signInput, algorithmMap[header.alg] ) ){
-			cfthrow( type="Invalid Token" message="Signature verification failed: Invalid key" );
+			if( !arguments.noThrow ){
+				cfthrow( type="Invalid Token" message="Signature verification failed: Invalid key" );
+			} else {
+				payload[ 'isValid' ] = false;
+				payload[ 'invalidReason' ] = 'Signature verification failed: Invalid key';
+			}
 		}
 		return payload;
 	}
@@ -131,6 +169,15 @@ component accessors="true"{
 	}
 
 	/**
+	 * Verify the JWT and return the payload with additional isValid and invalidReason properties
+	 *
+	 * @token The token to verify
+	 */
+	function verifyWithPayloadResponse( required string token ){
+		return decode( token = arguments.token, noThrow = true );
+	}
+
+	/**
 	* Escapes unsafe url characters from a base64 string
 	* @value The string to manipulate
 	*/
@@ -139,7 +186,7 @@ component accessors="true"{
 	}
 
 	/**
-	* restore base64 characters from an url escaped string 
+	* restore base64 characters from an url escaped string
 	* @value The string to manipulate
 	*/
 	private function base64UrlUnescape( required string value ){
@@ -172,15 +219,22 @@ component accessors="true"{
 		return base64UrlEscape( toBase64( mac.doFinal( msg.getBytes() ) ) );
 	}
 
-
 	/**
 	* Converts Epoch datetime to local date
 	* @epoch Seconds from Jan 1, 1970
 	*/
-	private function epochTimeToLocalDate( required numeric epoch ){
-		return createObject( "java", "java.util.Date" ).init( epoch * 1000 );
+	public string function epochTimeToLocalDate( required numeric epoch ){
+		return createObject( "java", "java.util.Date" ).init( arguments.epoch * 1000 );
 	}
 
+    /**
+     * Converts the given datetime into an epoch
+     *
+     * @date The datetime to convert
+     */
+    public string function dateToEpoch( required string date ){
+        return dateDiff( "s", dateConvert( "utc2Local", "January 1 1970 00:00" ), arguments.date );
+    }
 
 	/**
 	* Returns the properties as a struct
