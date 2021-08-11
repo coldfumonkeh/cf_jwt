@@ -35,6 +35,7 @@ component accessors="true"{
 		return this;
 	}
 
+
 	/**
 	* Encodes the JWT
 	* @payload The structure containing the data to encrypt
@@ -106,7 +107,7 @@ component accessors="true"{
 			}
 		}
 		// Verify claims
-		if( structKeyExists( payload, "exp" ) ){
+		if( structKeyExists( payload, "exp" ) && payload[ 'exp' ] NEQ 0 ){
 			if( epochTimeToLocalDate( payload.exp ) lt now() ){
 				if( !arguments.noThrow ){
 					cfthrow( type="Invalid Token" message="Signature verification failed: Token expired" );
@@ -218,6 +219,7 @@ component accessors="true"{
 		mac.init( key );
 		return base64UrlEscape( toBase64( mac.doFinal( msg.getBytes() ) ) );
 	}
+
 
 	/**
 	* Converts Epoch datetime to local date
