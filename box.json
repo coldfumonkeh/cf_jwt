@@ -1,9 +1,9 @@
 {
     "name":"CF JWT",
     "slug":"cf-jwt",
-    "version":"1.0.0",
+    "version":"1.1.0",
     "author":"Matt Gifford (https://www.monkehworks.com)",
-    "location":"coldfumonkeh/cf_jwt#v1.0.0",
+    "location":"coldfumonkeh/cf_jwt#v1.1.0",
     "directory":"",
     "createPackageDirectory":"true",
     "homepage":"https://github.com/coldfumonkeh/cf_jwt",
@@ -39,9 +39,7 @@
                 "default":""
             }
         ],
-        "labels":[
-            
-        ],
+        "labels":[],
         "reporter":"",
         "reporterResults":"",
         "bundles":[
@@ -51,13 +49,9 @@
             "mapping":"",
             "recurse":true
         },
-        "watchers":[
-            
-        ],
+        "watchers":[],
         "notify":{
-            "emails":[
-                
-            ],
+            "emails":[],
             "growl":"",
             "URL":""
         }
